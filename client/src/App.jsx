@@ -4,9 +4,9 @@ import './App.css';
 import { DebounceInput } from 'react-debounce-input';
 
 /////////// State
-// 1. 4 states: tripList//, isError//, isLoading// & searchText//
-// 2. 1 event: onChange (callback: handleChange) //
-// 3. 1 function : handleChange //
+// 1. มี 4 states: tripList//, isError//, isLoading// & searchText//
+// 2. มี 1 event: onChange (callback: handleChange) //
+// 3. มี 1 function : handleChange //
 
 ////////// Fetching
 // 1. API: GET- http://localhost:4001/trips?keywords=searchText //
@@ -15,10 +15,19 @@ import { DebounceInput } from 'react-debounce-input';
 //    2.2 execute ใน useEffect เมื่อ searchText มีการเปลี่ยนแปลง //
 // 3.นำข้อมูลจาก Response มา Render //
 
-/////// Using react-debounce-input
-// 3.1 npm i react-debounce-input //
-// 3.2 import {DebounceInput} from 'react-debounce-input' //
-// 3.3 อัพเดท input เป็น <DebounceInput minLength={2} debounceTimeout={500} ...> //
+////////// Using react-debounce-input
+// 1 npm i react-debounce-input //
+// 2 import {DebounceInput} from 'react-debounce-input' //
+// 3 อัพเดท input เป็น <DebounceInput minLength={2} debounceTimeout={500} ...> //
+
+///////////////////////////// Optinal
+///////// เมื่อ User คลิกที่หมวดหมู่จะต้องเอาข้อความที่คลิกไปใส่ลงในช่อง Input เพื่อทำการค้นหา
+// 1. มี 1 event: onClick (callback: handleTagClick) //
+// 2. มี 1 function : handleTagClick //
+///////// ในแต่ละรายการสถานที่ท่องเที่ยวจะมี ปุ่มสีฟ้าๆ ที่สามารถกดแล้วจะ Copy ลิ้งค์ที่สามารถกดเข้าไปดูรายละเอียดเพิ่มเติมได้ลงใน Clipboard
+// 1. มี 1 event: onClick (callback: handleCopyLink) //
+// 2. มี 1 function : handleCopyLink //
+// ref: https://stackoverflow.com/questions/39501289/in-reactjs-how-to-copy-text-to-clipboard
 
 function App() {
   const [trips, setTrips] = useState([]);
@@ -28,6 +37,19 @@ function App() {
 
   const handleChange = (e) => {
     setSearchText(e.target.value);
+  };
+
+  const handleTagClick = (tag) => {
+    setSearchText((prevText) => (prevText ? `${prevText} ${tag}` : tag));
+  };
+
+  const handleCopyLink = async (link) => {
+    try {
+      await navigator.clipboard.writeText(link);
+      alert('Link copied to clipboard');
+    } catch (error) {
+      alert('Fail to copy', err);
+    }
   };
 
   const getTripsData = async (text) => {
@@ -120,7 +142,9 @@ function App() {
                               <span>และ</span>
                             ) : null}
                             <li className="underline hover:no-underline">
-                              <a href="#">{item}</a>
+                              <a href="#" onClick={() => handleTagClick(item)}>
+                                {item}
+                              </a>
                             </li>
                           </div>
                         );
@@ -147,9 +171,12 @@ function App() {
                       }}
                     ></div>
                   </div>
-                  <div className="absolute bottom-5 right-5 rounded-full text-3xl text-blue-500 border-solid border-2 border-blue-500 ">
+                  <button
+                    className="absolute bottom-5 right-5 rounded-full text-2xl text-blue-500 border-solid border-2 border-blue-500 p-1"
+                    onClick={() => handleCopyLink(trip.url)}
+                  >
                     <i className="fa-solid fa-link "></i>
-                  </div>
+                  </button>
                 </div>
               </section>
             );
